@@ -1,6 +1,5 @@
 import json, csv, subprocess, time
 from datetime import datetime
-#FDQDZQD
 
 iperf_srv = ['paris.testdebit.info']
 iperf_cmd = "iperf3 -c %s -p 9240 -t 30 -S 0 -J --logfile result.json --forceflush"
