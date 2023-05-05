@@ -1,5 +1,5 @@
 # * Import des modules requis pour l'exécution du programme
-import json, csv, subprocess, time, signal, argparse
+import csv, subprocess, time, signal, argparse
 from datetime import datetime
 
 
