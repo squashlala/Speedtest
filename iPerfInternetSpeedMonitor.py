@@ -1,5 +1,5 @@
 # * Import des modules requis pour l'exécution du programme
-import csv, subprocess, time, signal, argparse
+import json, csv, subprocess, time, signal, argparse
 from datetime import datetime
 
 
@@ -17,7 +17,7 @@ config = vars(parser.parse_args())
 def handler(signum, frame):
     res = input("Voulez-vous arrêter le script? y/n ")
     if res == 'y':
-        exit(1)
+        exit(0)
 
 #Définiton de la fonction à appeler si Ctrl+C
 signal.signal(signal.SIGINT, handler)
@@ -66,7 +66,8 @@ def get_results(current_srv):
 
     # ! A tester
     #Exécution de la commande iPerf et sauvegarde du résultat dans une variable
-    iperf_data = subprocess.run(iperf_cmdFull, shell=True)
+    iperf_result = subprocess.run(iperf_cmdFull, shell=True, capture_output=True, text=True)
+    iperf_data = json.loads(iperf_result.stdout)
     
 
     # ! Inutile si sauvegarde en var OK
