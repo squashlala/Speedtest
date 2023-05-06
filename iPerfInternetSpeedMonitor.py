@@ -39,6 +39,9 @@ current_time = datetime.now().strftime('%d-%m-%Y_%H:%M')
 csv_fileGen = "%s_%s_"+current_time+".csv"
 
 
+#Clear de l'interface
+subprocess.run("clear", shell=True)
+
 
 # * Initialisation des fichiers CSV
 # Initialisation CSV pour chaques serveurs
@@ -91,8 +94,6 @@ def get_results(current_srv):
 
 
 # * Main
-#Clear de l'interface
-subprocess.run("clear", shell=True)
 #Boucle infinie exécutant un test toutes les 2min30 (150s)
 while True:
 
