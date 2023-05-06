@@ -94,7 +94,7 @@ def get_results(current_srv):
     formatted_date = date_obj.strftime('%d/%m/%Y - %H:%M')
 
     #Inscription en table des valeurs brutes
-    speeds_raw = (formatted_date, current_srv, iperf_data['end']['sum_received']['bytes'], iperf_data['end']['sum_sent']['bytes'])
+    speeds_raw = (formatted_date, current_srv, iperf_data['end']['sum_received']['bits_per_second'], iperf_data['end']['sum_sent']['bits_per_second'])
 
     #Inscription en table des valeurs en Mb
     speeds_Mb = (speeds_raw[0], speeds_raw[1], round(speeds_raw[2]/pow(1024,2),0), round(speeds_raw[3]/pow(1024,2),0))
