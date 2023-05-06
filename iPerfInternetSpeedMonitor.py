@@ -13,9 +13,9 @@ config = vars(parser.parse_args())
 
 
 # * Définition de la gestion d'appuis surCtrl+C pour finir la boucle
-#Focntion de gestion de l'appel Ctrl+C
+#Fonction de gestion de l'appel Ctrl+C
 def handler(signum, frame):
-    res = input("Voulez-vous arrêter le script? y/n ")
+    res = input("\nVoulez-vous arrêter le script? y/n ")
     if res == 'y':
         exit(0)
 
@@ -40,13 +40,6 @@ csv_fileGen = "%s_%s_"+current_time+".csv"
 
 
 
-
-# ! Inutile si sauvegarde en var OK
-# * Purge du fichier JSON et clear du terminal
-# subprocess.run('cat /dev/null > result.json; clear', shell=True)
-
-
-
 # * Initialisation des fichiers CSV
 # Initialisation CSV pour chaques serveurs
 for current_srv in iperf_srv :
@@ -64,16 +57,9 @@ def get_results(current_srv):
     #Mise en forme finale de la commande iPerf
     iperf_cmdFull = iperf_cmd %(current_srv)
 
-    # ! A tester
     #Exécution de la commande iPerf et sauvegarde du résultat dans une variable
     iperf_result = subprocess.run(iperf_cmdFull, shell=True, capture_output=True, text=True)
     iperf_data = json.loads(iperf_result.stdout)
-    
-
-    # ! Inutile si sauvegarde en var OK
-    # Open the iperf3 JSON output file
-    # with open('result.json') as j:
-    #     iperf_data = json.load(j)
     
     #Si la sortie JSON contient un champs erreur le test n'a pas fonctionné correctement, affichage de l'heure et inscription des vitesses en "-1"
     if 'error' in iperf_data:
@@ -99,16 +85,14 @@ def get_results(current_srv):
     #Inscription en table des valeurs en Mb
     speeds_Mb = (speeds_raw[0], speeds_raw[1], round(speeds_raw[2]/pow(1024,2),0), round(speeds_raw[3]/pow(1024,2),0))
 
-    # ! Inutile si sauvegarde en var OK
-    #Purge du fichier de résultats
-    # subprocess.run('cat /dev/null > result.json', shell=True)
-
     #Fermeture de la fonction avec retour des données de vitesse moyennes
     return speeds_raw, speeds_Mb
 
 
 
 # * Main
+#Clear de l'interface
+subprocess.run("clear", shell=True)
 #Boucle infinie exécutant un test toutes les 2min30 (150s)
 while True:
 
@@ -119,7 +103,7 @@ while True:
         speeds_raw, speeds_Mb = get_results(current_srv)
 
         #Affichage des résultats
-        print('Current speed for %s is:\tD: %dMbps\tU: %dMbps' %(current_srv, speeds_Mb[-2], speeds_Mb[-1]))
+        print("%s : Speed for %s is:\tD: %dMbps\tU: %dMbps" %(speeds_Mb[0], current_srv, speeds_Mb[-2], speeds_Mb[-1]))
 
         #Pour chaques types de vitesses, inscription des résultats dans un fichier CSV
         for speedFormat in ['speeds_raw','speeds_Mb'] :
