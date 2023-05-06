@@ -40,7 +40,7 @@ csv_fileGen = "%s_%s_"+current_time+".csv"
 
 
 #Clear de l'interface
-subprocess.run("clear", shell=True)
+subprocess.call("clear")
 
 
 # * Initialisation des fichiers CSV
