@@ -6,16 +6,26 @@ from datetime import datetime
 
 # * Définition des arguments
 parser = argparse.ArgumentParser(description="Programmes effectuant des test de débits toutes les N secondes et enregistrant les résultats dans des fichiers CSV.\nBasé sur iPerf3.",
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-i", "--interval", type=int, default=150, help="Interval de temps entre chaques test (secondes)")
+parser.add_argument("-s", "--servers", type=str ,nargs='+', default=["paris.testdebit.info:9240"], help="Serveurs sur lesquels réaliser le test ex : (\"srv1:port1 srv2:port2 ...\")")
 config = vars(parser.parse_args())
 
 
 
-# * Définition de la gestion d'appuis surCtrl+C pour finir la boucle
+
+# * Définition des fonctions d'exécution du rogramme
+#Fonction de controle des prérequis
+def CheckPrerequisites():
+    import subprocess
+    AppCheck = subprocess.call(['which', 'iperf3'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if AppCheck != 0:
+        print('ERREUR : iPerf3 n\'est pas installé.\n\t"apt/dnf install iperf3"')
+        exit(1)
+
 #Fonction de gestion de l'appel Ctrl+C
 def handler(signum, frame):
-    res = input("\nVoulez-vous arrêter le script? y/n ")
+    res = input("\nVoulez-vous arrêter le script? y/N :")
     if res == 'y':
         exit(0)
 
@@ -26,10 +36,10 @@ signal.signal(signal.SIGINT, handler)
 
 # * Définition des variables
 # Définiton des serveurs à utiliser
-iperf_srv = ['paris.testdebit.info']
+iperf_srv = config['servers']
 
 #Définiton de la commande à passer avec champs de server dynamique
-iperf_cmd = "iperf3 -c %s -p 9240 -t 30 -S 0 -J"
+iperf_cmd = "iperf3 -c %s -p %s -t 30 -S 0 -J"
 
 #Définition de l'heure actuelle
 current_time = datetime.now().strftime('%d-%m-%Y_%H:%M')
@@ -42,6 +52,8 @@ csv_fileGen = "%s_%s_"+current_time+".csv"
 #Clear de l'interface
 subprocess.call("clear")
 
+#Vérification de la présence des applications necessaires
+CheckPrerequisites()
 
 # * Initialisation des fichiers CSV
 # Initialisation CSV pour chaques serveurs
@@ -55,10 +67,10 @@ for current_srv in iperf_srv :
 
 # * Définition des fonctions d'exécution
 #Fonction de réalisation du test et parsing du résultat
-def get_results(current_srv):
+def get_results(current_srv,current_port):
 
     #Mise en forme finale de la commande iPerf
-    iperf_cmdFull = iperf_cmd %(current_srv)
+    iperf_cmdFull = iperf_cmd %(current_srv, current_port)
 
     #Exécution de la commande iPerf et sauvegarde du résultat dans une variable
     iperf_result = subprocess.run(iperf_cmdFull, shell=True, capture_output=True, text=True)
@@ -67,8 +79,8 @@ def get_results(current_srv):
     #Si la sortie JSON contient un champs erreur le test n'a pas fonctionné correctement, affichage de l'heure et inscription des vitesses en "-1"
     if 'error' in iperf_data:
         current_time = datetime.now().strftime('%d/%m/%Y - %H:%M')
-        speeds_raw = (current_time,current_srv,-1,-1)
-        speeds_Mb = (current_time,current_srv,-1,-1)
+        speeds_raw = (current_time,current_srv,0,0)
+        speeds_Mb = (current_time,current_srv,0,0)
 
         #Fermeture de la fonction après erreur
         return speeds_raw, speeds_Mb
@@ -98,10 +110,13 @@ def get_results(current_srv):
 while True:
 
     #Pour chaques serveurs éxécution d'un speed test
-    for current_srv in iperf_srv :
+    for srvCouple in iperf_srv :
+
+        #Mise en forme des champs
+        srvPortSplitted = srvCouple.split(":")
 
         #Appel de la fonction effectuant le test
-        speeds_raw, speeds_Mb = get_results(current_srv)
+        speeds_raw, speeds_Mb = get_results(srvPortSplitted[0],srvPortSplitted[1])
 
         #Affichage des résultats
         print("%s : Speed for %s is:\tD: %dMbps\tU: %dMbps" %(speeds_Mb[0], current_srv, speeds_Mb[-2], speeds_Mb[-1]))
