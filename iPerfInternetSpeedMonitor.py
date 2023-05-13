@@ -39,7 +39,7 @@ signal.signal(signal.SIGINT, handler)
 iperf_srv = config['servers']
 
 #Définiton de la commande à passer avec champs de server dynamique
-iperf_cmd = "iperf3 -c %s -p %s -t 30 -S 0 -J"
+iperf_cmd = "iperf3 -c %s -p %s -t 10 -S 0 -J"
 
 #Définition de l'heure actuelle
 current_time = datetime.now().strftime('%d-%m-%Y_%H:%M')
